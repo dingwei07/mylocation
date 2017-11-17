@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Hello, World</title>
+		<style type="text/css">
+			html {
+				height: 100%
+			}
+			
+			body {
+				height: 100%;
+				margin: 0px;
+				padding: 0px
+			}
+			
+			#container {
+				height: 100%
+			}
+		</style>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=cUa3tBD8llcSGQmqoQK5AMsnwfaTPNPj&s=1">
+			//v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
+			//v1.4版本及以前版本的引用方式：src="http://api.map.baidu.com/api?v=1.4&key=您的密钥&callback=initialize"
+		</script>
+	</head>
+
+	<body>
+		<div id="container"></div>
+	</body>
+
+</html>
+<script type="text/javascript">
+			function getLocation() {
+				if(navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(showPosition, showError);
+				} else {
+					alert("浏览器不支持地理定位。");
+				}
+			}
+			function showError(error) {
+				switch(error.code) {
+					case error.PERMISSION_DENIED:
+						alert("定位失败,用户拒绝请求地理定位");
+						break;
+					case error.POSITION_UNAVAILABLE:
+						alert("定位失败,位置信息是不可用");
+						break;
+					case error.TIMEOUT:
+						alert("定位失败,请求获取用户位置超时");
+						break;
+					case error.UNKNOWN_ERROR:
+						alert("定位失败,定位系统失效");
+						break;
+				}
+			}
+			function showPosition(position) {
+				var lat = position.coords.latitude; //纬度 
+				var lag = position.coords.longitude; //经度 
+				alert('纬度:' + lat + '\n'+'经度:' + lag);
+				var map = new BMap.Map("container"); // 创建地图实例  
+				var point = new BMap.Point(lag,lat); // 创建点坐标 经纬度   哈哈哈  
+				map.centerAndZoom(point, 15); // 初始化地图，设置中心点坐标和地图级别
+			}
+			getLocation();
+		</script>

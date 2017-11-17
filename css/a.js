@@ -1,0 +1,3 @@
+function ale(){
+	alert("pra");
+}
